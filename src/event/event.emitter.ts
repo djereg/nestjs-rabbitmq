@@ -18,7 +18,10 @@ export class EventEmitter {
       headers: {
         'X-Message-Type': 'event',
         'X-Event-Name': event,
-      }
+      },
+      contentType: 'application/json',
+      priority: 0,
+      persistent: true,
     });
   }
 }
