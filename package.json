@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "description": "RabbitMQ module for NestJS",
   "author": "Györg Norbert",
-  "private": true,
   "license": "MTI",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
