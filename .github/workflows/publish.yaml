@@ -14,7 +14,7 @@ jobs:
 
       - uses: bikutadesu/create-npmrc@v1
         with:
-          org_name: naexas
+          org_name: djereg
           auth_token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
