@@ -1,0 +1,55 @@
+{
+  "name": "@djereg/nestjs-rabbitmq",
+  "version": "0.0.0",
+  "description": "RabbitMQ module for NestJS",
+  "author": "Györg Norbert",
+  "private": true,
+  "license": "MTI",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "lint": "eslint src/**/*.ts",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@golevelup/nestjs-rabbitmq": "^5.2.0",
+    "amqplib": "^0.10.4",
+    "json-rpc-2.0": "^1.7.0",
+    "lodash": "^4.17.21"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^3.2.2",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/event-emitter": "^2.0.4",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "@nestjs/schematics": "^10.0.0",
+    "@nestjs/testing": "^10.0.0",
+    "@types/amqplib": "^0.10.5",
+    "@types/express": "^4.17.17",
+    "@types/jest": "^29.5.2",
+    "@types/lodash": "^4.17.0",
+    "@types/node": "^20.3.1",
+    "@types/supertest": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.42.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "jest": "^29.5.0",
+    "prettier": "^3.0.0",
+    "rimraf": "^5.0.1",
+    "source-map-support": "^0.5.21",
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.1.0",
+    "ts-loader": "^9.4.3",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.1.3"
+  }
+}

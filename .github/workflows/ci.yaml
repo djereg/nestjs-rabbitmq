@@ -1,0 +1,29 @@
+name: CI Build
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: bikutadesu/create-npmrc@v1
+        with:
+          org_name: djereg
+          auth_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - run: npm audit --audit-level=high --omit=dev
+      - run: npm ci --no-audit
+      # - run: npm run lint
+      - run: npm run build
+      - run: npm publish --dry-run
