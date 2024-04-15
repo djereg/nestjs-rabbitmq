@@ -1,6 +1,6 @@
 # First of all
 
-**This package is primarily intended for internal, private use in onw projects. If it meets your needs, feel free to use it, but in case of any modification requests, I will consider my own needs first.**
+**This package is primarily intended for internal, private use in own projects. If it meets your needs, feel free to use it, but in case of any modification requests, I will consider my own needs first.**
 
 # NestJS RabbitMQ
 
