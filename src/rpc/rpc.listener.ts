@@ -37,7 +37,15 @@ export class RPCListener implements OnModuleInit {
     }
 
     const { replyTo, deliveryMode, correlationId, contentType } = raw.properties;
-    const options = { deliveryMode, correlationId, contentType, headers: {} };
+
+    const options = {
+      deliveryMode,
+      correlationId,
+      contentType,
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    };
 
     await this.rmq.publish('', replyTo, response, options);
   }
