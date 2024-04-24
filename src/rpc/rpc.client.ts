@@ -75,7 +75,7 @@ export class RPCClient {
       exchange: '',
       expiration: timeout / 2,
       headers: {
-        "X-Message-Type": "rpc",
+        "X-Message-Type": "request",
         'Content-Type': 'application/json',
       },
     };
