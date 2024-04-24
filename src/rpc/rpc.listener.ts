@@ -26,7 +26,7 @@ export class RPCListener implements OnModuleInit {
   @MessageHandler()
   async onMessage({ message, headers, raw }: MessageHandleEvent) {
 
-    if (headers['X-Message-Type'] !== 'rpc') {
+    if (headers['X-Message-Type'] !== 'request') {
       return;
     }
 
@@ -44,6 +44,7 @@ export class RPCListener implements OnModuleInit {
       contentType,
       headers: {
         'Content-Type': 'application/json',
+        'X-Message-Type': 'response'
       }
     };
 
