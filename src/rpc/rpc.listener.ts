@@ -8,7 +8,7 @@ import { EventEmitter2 } from "@nestjs/event-emitter";
 @Injectable()
 export class RPCListener implements OnModuleInit {
 
-  private readonly server: JSONRPCServer;
+  private readonly server: JSONRPCServer<any>;
 
   constructor(
     private readonly explorer: RPCExplorer,
@@ -33,7 +33,7 @@ export class RPCListener implements OnModuleInit {
     }
 
     this.events.emit('rabbitmq:message:processing', { message, headers, raw });
-    const response = await this.server.receive(message);
+    const response = await this.server.receive(message, headers);
     this.events.emit('rabbitmq:message:processed', { message, headers, raw });
 
     if (!response) {
