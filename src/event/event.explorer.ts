@@ -1,7 +1,7 @@
 import { Injectable, Type } from "@nestjs/common";
 import { DiscoveryService, MetadataScanner, Reflector } from "@nestjs/core";
 import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
-import { RABBITMQ_EVENT, EventMetadata } from "./event.decorators";
+import { RABBITMQ_MESSAGE_EVENT, EventMetadata } from "./event.decorators";
 import { castArray } from "lodash";
 
 @Injectable()
@@ -47,7 +47,7 @@ export class EventExplorer {
       return [];
     }
 
-    const metadata = this.reflector.get(RABBITMQ_EVENT, target);
+    const metadata = this.reflector.get(RABBITMQ_MESSAGE_EVENT, target);
     return castArray(metadata ?? []);
   }
 }

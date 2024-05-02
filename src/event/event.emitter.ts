@@ -13,7 +13,7 @@ export class EventEmitter {
   }
 
   public async emit<T extends object = any>(event: string, payload: T) {
-    const exchange = this.config.getOrThrow('rabbitmq.exchange');
+    const exchange = this.config.getOrThrow('rabbitmq.exchangeName');
     await this.rmq.publish<T>(exchange, event, payload, {
       headers: {
         'X-Message-Type': 'event',

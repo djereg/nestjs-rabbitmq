@@ -1,8 +1,9 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { RPCExplorer } from "./rpc.explorer";
 import { JSONRPCServer } from "json-rpc-2.0";
-import { MessageHandleEvent, RabbitMQService } from "../rabbitmq.service";
-import { MessageHandler } from "../rabbitmq.decorators";
+import { MessageReceivedEvent, RabbitMQService } from "../rabbitmq.service";
+import { OnMessageReceived } from "../rabbitmq.decorators";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 @Injectable()
 export class RPCListener implements OnModuleInit {
@@ -12,6 +13,7 @@ export class RPCListener implements OnModuleInit {
   constructor(
     private readonly explorer: RPCExplorer,
     private readonly rmq: RabbitMQService,
+    private readonly events: EventEmitter2,
   ) {
     this.server = new JSONRPCServer();
   }
@@ -23,14 +25,16 @@ export class RPCListener implements OnModuleInit {
     }
   }
 
-  @MessageHandler()
-  async onMessage({ message, headers, raw }: MessageHandleEvent) {
+  @OnMessageReceived()
+  async onMessage({ message, headers, raw }: MessageReceivedEvent) {
 
     if (headers['X-Message-Type'] !== 'request') {
       return;
     }
 
+    this.events.emit('rabbitmq:message:processing', { message, headers, raw });
     const response = await this.server.receive(message);
+    this.events.emit('rabbitmq:message:processed', { message, headers, raw });
 
     if (!response) {
       return;
