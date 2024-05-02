@@ -12,11 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: bikutadesu/create-npmrc@v1
-        with:
-          org_name: djereg
-          auth_token: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -26,4 +21,4 @@ jobs:
       - run: npm ci --no-audit
       # - run: npm run lint
       - run: npm run build
-      - run: npm publish --dry-run
+      - run: npm publish --access public --dry-run
