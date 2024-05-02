@@ -1,10 +1,13 @@
 import { OnEvent } from "@nestjs/event-emitter";
 
-export const MessagePublishing = (): MethodDecorator =>
-  OnEvent('rabbitmq:publishing');
+export const OnMessagePublishing = (): MethodDecorator =>
+  OnEvent('rabbitmq:message:publishing');
 
-export const MessageReceived = (): MethodDecorator =>
-  OnEvent('rabbitmq:received');
+export const OnMessageReceived = (): MethodDecorator =>
+  OnEvent('rabbitmq:message:received');
 
-export const MessageHandler = (): MethodDecorator =>
-  OnEvent('rabbitmq:handle');
+export const OnMessageProcessing = (): MethodDecorator =>
+  OnEvent('rabbitmq:message:processing');
+
+export const OnMessageProcessed = (): MethodDecorator =>
+  OnEvent('rabbitmq:message:processed');

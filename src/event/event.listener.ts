@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { MessageHandler } from "../rabbitmq.decorators";
-import { MessageHandleEvent } from "../rabbitmq.service";
+import { OnMessageReceived } from "../rabbitmq.decorators";
+import { MessageReceivedEvent } from "../rabbitmq.service";
 
 @Injectable()
 export class EventListener {
@@ -12,14 +12,16 @@ export class EventListener {
     //
   }
 
-  @MessageHandler()
-  async onMessages({ message, headers }: MessageHandleEvent) {
+  @OnMessageReceived()
+  async onMessages({ message, headers, raw }: MessageReceivedEvent) {
 
     // If the message type is not an event, ignore it
     if (headers["X-Message-Type"] !== "event") {
       return;
     }
 
+    this.events.emit('rabbitmq:message:processing', { message, headers, raw });
     this.events.emit(headers["X-Event-Name"], message);
+    this.events.emit('rabbitmq:message:processed', { message, headers, raw });
   }
 }

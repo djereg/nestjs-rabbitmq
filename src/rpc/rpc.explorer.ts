@@ -1,7 +1,7 @@
 import { Injectable, Type } from "@nestjs/common";
 import { DiscoveryService, MetadataScanner, Reflector } from "@nestjs/core";
 import { InstanceWrapper } from "@nestjs/core/injector/instance-wrapper";
-import { MethodMetadata, RABBITMQ_RPC } from "./rpc.decorators";
+import { MethodMetadata, RABBITMQ_REMOTE_PROCEDURE } from "./rpc.decorators";
 import { castArray } from "lodash";
 
 export interface MethodMeta {
@@ -57,7 +57,7 @@ export class RPCExplorer {
       return [];
     }
 
-    const metadata = this.reflector.get(RABBITMQ_RPC, target);
+    const metadata = this.reflector.get(RABBITMQ_REMOTE_PROCEDURE, target);
     return castArray(metadata ?? []);
   }
 }

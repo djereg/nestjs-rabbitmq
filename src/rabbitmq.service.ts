@@ -18,7 +18,13 @@ export interface MessageReceivedEvent<M = any, H = any> {
   raw: ConsumeMessage;
 }
 
-export interface MessageHandleEvent<M = any, H = any> {
+export interface MessageProcessingEvent<M = any, H = any> {
+  message: M;
+  headers: H;
+  raw: ConsumeMessage;
+}
+
+export interface MessageProcessedEvent<M = any, H = any> {
   message: M;
   headers: H;
   raw: ConsumeMessage;
@@ -39,7 +45,7 @@ export class RabbitMQService implements OnModuleInit {
   public async publish<M = any>(exchange: string, routingKey: string, message: M, options?: Options.Publish): Promise<boolean> {
     const { headers } = options ?? {};
     const event: MessagePublishingEvent = { exchange, routingKey, message, headers };
-    this.events.emit('rabbitmq:publishing', event);
+    this.events.emit('rabbitmq:message:publishing', event);
 
     return this.connection.publish<M>(exchange, routingKey, message, options);
   }
@@ -47,7 +53,7 @@ export class RabbitMQService implements OnModuleInit {
   public async request<T>(options: RequestOptions): Promise<T> {
     const { exchange, routingKey, payload: message, headers } = options;
     const event: MessagePublishingEvent = { exchange, routingKey, message, headers };
-    this.events.emit('rabbitmq:publishing', event);
+    this.events.emit('rabbitmq:message:publishing', event);
 
     return this.connection.request<T>(options);
   }
@@ -55,8 +61,8 @@ export class RabbitMQService implements OnModuleInit {
   async onModuleInit(): Promise<void> {
     const events = this.explorer.getEvents();
 
-    const queue = this.config.getOrThrow("rabbitmq.queue");
-    const exchange = this.config.getOrThrow("rabbitmq.exchange");
+    const queue = this.config.getOrThrow("rabbitmq.queueName");
+    const exchange = this.config.getOrThrow("rabbitmq.exchangeName");
 
     const channel = this.connection.channel;
     for (const event of events) {
@@ -64,8 +70,7 @@ export class RabbitMQService implements OnModuleInit {
     }
 
     const handler = async (message: any, raw?: ConsumeMessage, headers?: any) => {
-      this.events.emit("rabbitmq:received", { message, headers, raw } as MessageReceivedEvent);
-      this.events.emit("rabbitmq:handle", { message, headers, raw } as MessageHandleEvent);
+      this.events.emit("rabbitmq:message:received", { message, headers, raw } as MessageReceivedEvent);
     };
 
     await this.connection.createSubscriber(handler, { queue }, "messageHandler");

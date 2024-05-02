@@ -41,28 +41,31 @@ export class RabbitMQModule {
             const user = config.getOrThrow("rabbitmq.username");
             const pass = config.getOrThrow("rabbitmq.password");
 
-            const queue = config.getOrThrow("rabbitmq.queue");
-            const exchange = config.getOrThrow("rabbitmq.exchange");
+            const queueName = config.getOrThrow("rabbitmq.queueName");
+            const exchangeName = config.getOrThrow("rabbitmq.exchangeName");
+            const exchangeType = config.getOrThrow("rabbitmq.exchangeType");
+
+            const prefetchCount = config.getOrThrow("rabbitmq.prefetchCount");
 
             return {
               uri: `amqp://${user}:${pass}@${host}:${port}`,
               channels: {
                 "ch-1": {
-                  prefetchCount: 1,
+                  prefetchCount,
                   default: true,
                 }
               },
               exchanges: [
                 {
-                  name: exchange,
-                  type: "direct",
-                  createExchangeIfNotExists: true
+                  name: exchangeName,
+                  type: exchangeType,
+                  createExchangeIfNotExists: true,
                 }
               ],
               queues: [
                 {
-                  name: queue,
-                  createQueueIfNotExists: true
+                  name: queueName,
+                  createQueueIfNotExists: true,
                 }
               ],
               enableDirectReplyTo: true,
