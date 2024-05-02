@@ -3,9 +3,21 @@
   "version": "0.0.0",
   "description": "RabbitMQ module for NestJS",
   "author": "Györg Norbert",
-  "license": "MTI",
+  "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/djereg/nestjs-rabbitmq.git"
+  },
+  "keywords": [
+    "nestjs",
+    "rabbitmq"
+  ],
+  "bugs": {
+    "url": "https://github.com/djereg/nestjs-rabbitmq/issues"
+  },
+  "homepage": "https://github.com/djereg/nestjs-rabbitmq#readme",
   "scripts": {
     "build": "rimraf dist && tsc",
     "lint": "eslint src/**/*.ts",
