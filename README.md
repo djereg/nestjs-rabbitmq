@@ -1,10 +1,11 @@
-# First of all
-
-**This package is primarily intended for internal, private use in own projects. If it meets your needs, feel free to use it, but in case of any modification requests, I will consider my own needs first.**
-
 # NestJS RabbitMQ
 
-## Table of Contents
+**THIS PACKAGE IS PRIMARILY INTENDED FOR INTERNAL/PRIVATE USE IN OWN PROJECTS.
+IF IT MEETS YOUR NEEDS, FEEL FREE TO USE IT, BUT IN CASE OF ANY MODIFICATION REQUESTS, I WILL CONSIDER MY OWN NEEDS FIRST.**
+
+The package is part of the [rabbitmq-multiverse](https://github.com/djereg/rabbitmq-multiverse).
+
+# Table of Contents
 
 - [Description](#description)
 - [Motivation](#motivation)
@@ -13,33 +14,40 @@
   - [Configuration](#configuration)
   - [Module Initialization](#module-initialization)
 - [Events](#events)
-  - [Emitting Event](#emitting-event)
-  - [Subscribing to Event](#subscribing-to-event)
+  - [Emitting events](#emitting-events)
+  - [Listening to events](#listening-to-events)
+  - [Subscribing to events](#subscribing-to-events)
 - [RPC](#rpc)
   - [Setup](#setup)
-  - [Method Call](#method-call)
+  - [Calling remote procedures](#calling-remote-procedures)
+  - [Registering remote procedures](#registering-remote-procedures)
   - [Notification](#notification)
   - [Batch Call](#batch-call)
+- [Lifecycle events](#lifecycle-events)
+  - [MessagePublishing](#messagepublishing)
+  - [MessageProcessing](#messageprocessing)
+  - [MessageProcessed](#messageprocessed)
+- [License](#license)
 
-## Description
+# Description
 
 The package is an intermediate layer between NestJS and RabbitMQ. It provides the possibility of synchronous and asynchronous communication between different microservices.
 
-## Motivation
+# Motivation
 
 Since the microservice architecture has become very popular, I needed a library that provides the possibility of communicating with services written in different programming languages or frameworks.
 
 Using the [@golevelup/nestjs-rabbitmq](https://www.npmjs.com/package/@golevelup/nestjs-rabbitmq) package under the hood, which is a great package, but I needed some customizations.
 
-## Usage
+# Usage
 
-### Installation
+## Installation
 
 ```bash
 $ npm install --save @djereg/nestjs-rabbitmq
 ```
 
-### Configuration
+## Configuration
 
 The RabbitMQ connection configuration is done through environment variables.
 
@@ -53,7 +61,7 @@ RABBITMQ_QUEUE=
 RABBITMQ_EXCHANGE=
 ```
 
-### Module Initialization
+## Module Initialization
 
 ```typescript
 import {RabbitMQModule} from "@djereg/nestjs-rabbitmq";
@@ -67,14 +75,14 @@ export class AppModule {
 }
 ```
 
-## Events
+# Events
 
 Provides an event based asynchronous communication between services.
 
-Works very similarly to the [NestJS event system](https://docs.nestjs.com/techniques/events), as it wraps it. When an event-type message is received, an event is emitted with the help of the built-in event emitter, and the methods subscribed to the
+Works very similarly to the [NestJS event system](https://docs.nestjs.com/techniques/events), as it wraps it. When an event-type message is received, an event is emitted with the help of the built-in event emitter, and the methods listening to the
 event perform an action.
 
-### Emitting Event
+## Emitting events
 
 ```typescript
 import {EventEmitter} from '@djereg/nestjs-rabbitmq';
@@ -84,6 +92,7 @@ export class UserService {
   constructor(
     private readonly eventEmitter: EventEmitter
   ) {
+    //
   }
 
   public async createUser(user: User) {
@@ -94,39 +103,43 @@ export class UserService {
 }
 ```
 
-### Subscribing to Event
+## Listening to events
 
 ```typescript
-import {Event} from '@djereg/nestjs-rabbitmq';
+import {OnMessageEvent} from '@djereg/nestjs-rabbitmq';
 
 export class NotificationService {
 
-  @Event('user.created')
+  @OnMessageEvent('user.created')
   public async handleUserCreated(user: User) {
     // Send notification logic
   }
 }
 ```
 
-You can subscribe to multiple events by adding multiple decorators.
+You can listen to multiple events by adding multiple decorators.
 
 ```typescript
-@Event('user.created')
-@Event('user.updated')
+@OnMessageEvent('user.created')
+@OnMessageEvent('user.updated')
 async function handler() {
-
+    // Do something
 }
 ```
 
-## RPC
+## Subscribing to events
+
+At startup the exchange and queue will be created automatically, and the events listening to will be registered as routing keys.
+
+# RPC
 
 Provides the possibility of synchronous like asynchronous communication between services.
 
 Uses the [JSON-RPC 2.0](https://www.jsonrpc.org/specification) protocol for communication.
 
-### Setup
+## Setup
 
-Before using the client, you need set it up in the module.
+Before using the client, you need to define the client in the module.
 
 ```typescript
 import {RabbitMQModule} from "@djereg/nestjs-rabbitmq";
@@ -142,54 +155,60 @@ import {RabbitMQModule} from "@djereg/nestjs-rabbitmq";
 })
 ```
 
-After initialization, you can use the client in the service.
+After initialization, you can use the client in a service.
 
-### Method Call
+## Calling remote procedures
 
-A synchronous-like call to the method of service which returns a result.
+Inject the previously defined client into a service and call the remote procedures like the example below.
 
 ```typescript
 import {Client, InjectClient} from '@djereg/nestjs-rabbitmq';
+import {Injectable} from "@nestjs/common";
 
-class UserController {
+@Injectable()
+class UserService {
 
   constructor(
     @InjectClient('users')
     private readonly users: Client
   ) {
+    //
   }
 
   public async createUser(dto: UserCreateDto) {
     const user = this.users.call('create', dto);
-
-    // Do something with user
+    // Do something with the user data returned
   }
 }
 ```
 
+## Registering remote procedures
+
+Create a service and add the `@RemoteProcedure` decorator to the method you want to expose.
+
+Adding the decorator without parameters will use the method name as the remote procedure name.
+Specifying the name explicitly will use the specified name.
+
 ```typescript
-import {Method} from '@djereg/nestjs-rabbitmq';
+import {RemoteProcedure} from '@djereg/nestjs-rabbitmq';
 
 class UserService {
 
-  @Method()
+  @RemoteProcedure()
   create(dto: CreateUserDto) {
-    // Create user logic
-    const user = db.createUser(dto);
-
-    return user;
+    // Create a user and return it
   }
 
   // Also you can specify the method name explicitly
-  @Method('delete')
+  @RemoteProcedure('delete')
   deleteUserMethod(id: number) {
-    // Delete user logic
+    // Delete the user somehow
   }
 }
 
 ```
 
-### Notification
+## Notification
 
 An asynchronous call to the method of service which does not return a result.
 
@@ -202,33 +221,35 @@ class UserController {
     @InjectClient('notifications')
     private readonly notifications: Client
   ) {
+    //
   }
 
   public async createUser(dto: UserCreateDto) {
-    // Create user logic
-
+    // Create the user and notify the notification service
     this.notifications.notify('userCreated', user);
   }
 }
 ```
 
-### Batch Call
+## Batch Call
 
 A grouped call to multiple methods of service. Returns a list of results.
 
 ```typescript
 import {Client, InjectClient} from '@djereg/nestjs-rabbitmq';
-import {basename} from "@angular-devkit/core";
+import {Injectable} from "@nestjs/common";
 
-class UserController {
+@Injectable()
+class Mathervice {
 
   constructor(
     @InjectClient('math')
     private readonly math: Client
   ) {
+    //
   }
 
-  public async createUser(dto: UserCreateDto) {
+  public async batchCall() {
 
     const batch = this.math.batch();
 
@@ -239,16 +260,71 @@ class UserController {
 
     // The notification method can also be used in the
     // batch, but it will not return a result
-    batch.notify('somethin', {a: 1, b: 2});
+    batch.notify('something', {a: 1, b: 2});
     batch.notify('anything', {a: 1, b: 2});
 
     const results = await batch.send();
 
-    // Do something with user
+    // Do something with the results
   }
 }
 ```
 
-## License
+# Lifecycle events
+
+The package emits events during the message processing.
+You can listen to these events and perform some actions.
+
+Add the corresponding decorator to the method you want to execute.
+
+## MessagePublishing
+
+Emitted before the message is published to the exchange.
+
+```typescript
+import {OnMessagePublishing, MessagePublishingEvent} from '@djereg/nestjs-rabbitmq';
+
+class UserService {
+
+  @OnMessagePublishing()
+  async handlePublishing(event: MessagePublishingEvent) {
+    // Do something with the event
+  }
+}
+```
+
+## MessageProcessing
+
+Emitted before the message is processed.
+
+```typescript
+import {OnMessageProcessing, MessageProcessingEvent} from '@djereg/nestjs-rabbitmq';
+
+class UserService {
+
+  @OnMessageProcessing()
+  async handleProcessing(event: MessageProcessingEvent) {
+    // Do something with the event
+  }
+}
+```
+
+## MessageProcessed
+
+Emitted after the message is processed.
+
+```typescript
+import {OnMessageProcessed, MessageProcessedEvent} from '@djereg/nestjs-rabbitmq';
+
+class UserService {
+
+  @OnMessageProcessed()
+  async handleProcessed(event: MessageProcessedEvent) {
+    // Do something with the event
+  }
+}
+```
+
+# License
 
 [MIT licensed](LICENSE)
